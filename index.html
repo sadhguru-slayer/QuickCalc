@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickCalc | Functional & Shortcut First</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
+    <div class="background-blob fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[120px]">
+        </div>
+    </div>
+
+    <main class="relative z-10 w-full max-w-lg">
+        <div class="glass-container bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl">
+            <header class="mb-6 flex justify-between items-center">
+                <h1
+                    class="text-xl font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    QuickCalc</h1>
+                <div class="flex gap-2 items-center">
+                    <div
+                        class="bg-white/5 border border-white/10 rounded-lg p-1 flex text-[9px] uppercase tracking-wider font-medium">
+                        <button id="fmt-none" onclick="setFormat('none')"
+                            class="px-2 py-1 rounded transition-colors text-white/40 hover:text-white">None</button>
+                        <button id="fmt-intl" onclick="setFormat('intl')"
+                            class="px-2 py-1 rounded transition-colors text-white/40 hover:text-white">Intl</button>
+                        <button id="fmt-in" onclick="setFormat('in')"
+                            class="px-2 py-1 rounded transition-colors bg-white/20 text-white shadow-sm">IN</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Display Area -->
+            <div
+                class="relative bg-black/40 rounded-3xl p-8 mb-8 min-h-[180px] flex flex-col justify-end items-end overflow-hidden border border-white/10 shadow-inner group">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                </div>
+                <div id="history"
+                    class="text-white/40 text-sm mb-2 h-6 font-medium tabular-nums tracking-tight overflow-x-auto whitespace-nowrap scrollbar-hide text-right w-full">
+                </div>
+                <div id="display-container" class="relative w-full overflow-x-auto whitespace-nowrap scrollbar-hide">
+                    <div id="display"
+                        class="text-4xl sm:text-5xl font-medium tabular-nums tracking-tight text-right w-fit ml-auto leading-normal drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                        0</div>
+                </div>
+            </div>
+
+            <!-- Buttons Grid -->
+            <div class="grid grid-cols-4 gap-3">
+                <!-- Row 1 -->
+                <button onclick="clearDisplay()" class="btn-secondary col-span-2">Clear <span
+                        class="text-[10px] opacity-40 ml-1">Esc</span></button>
+                <button onclick="appendValue('(')" class="btn-secondary"> ( <span
+                        class="text-[10px] opacity-40 ml-1">Q</span></button>
+                <button onclick="appendValue(')')" class="btn-secondary"> ) <span
+                        class="text-[10px] opacity-40 ml-1">W</span></button>
+
+                <!-- Row 2 -->
+                <button onclick="appendValue('7')" class="btn-number">7</button>
+                <button onclick="appendValue('8')" class="btn-number">8</button>
+                <button onclick="appendValue('9')" class="btn-number">9</button>
+                <button onclick="setOperator('/')" class="btn-operator">÷ <span
+                        class="text-[10px] opacity-40 ml-1">D</span></button>
+
+                <!-- Row 3 -->
+                <button onclick="appendValue('4')" class="btn-number">4</button>
+                <button onclick="appendValue('5')" class="btn-number">5</button>
+                <button onclick="appendValue('6')" class="btn-number">6</button>
+                <button onclick="setOperator('*')" class="btn-operator">× </span
+                        class="text-[10px] opacity-40 ml-1">M</span></button>
+
+                <!-- Row 4 -->
+                <button onclick="appendValue('1')" class="btn-number">1</button>
+                <button onclick="appendValue('2')" class="btn-number">2</button>
+                <button onclick="appendValue('3')" class="btn-number">3</button>
+                <button onclick="setOperator('-')" class="btn-operator">- <span
+                        class="text-[10px] opacity-40 ml-1">S</span></button>
+
+                <!-- Row 5 -->
+                <button onclick="appendValue('0')" class="btn-number col-span-1">0</button>
+                <button onclick="appendValue('.')" class="btn-number">.</button>
+                <button onclick="setOperator('//')" class="btn-operator">// <span
+                        class="text-[10px] opacity-40 ml-1">DD</span></button>
+                <button onclick="setOperator('+')" class="btn-operator">+ <span
+                        class="text-[10px] opacity-40 ml-1">P</span></button>
+
+                <!-- Row 6 -->
+                <button onclick="toggleCurrencyModal()" class="btn-secondary col-span-1 text-sm"><span
+                        class="mr-1">💱</span> <span class="text-[10px] opacity-40">U</span></button>
+                <button onclick="calculate()" class="btn-primary col-span-3">Calculate <span
+                        class="text-[10px] opacity-40 ml-2">Enter</span></button>
+            </div>
+
+            <!-- Shortcut Hint -->
+            <footer
+                class="mt-8 pt-4 border-t border-white/5 flex flex-wrap gap-x-4 gap-y-2 text-[10px] text-white/30 uppercase tracking-tighter">
+                <span>P: +</span>
+                <span>S: -</span>
+                <span>M: *</span>
+                <span>D: /</span>
+                <span>DD: //</span>
+                <span>Q: (</span>
+                <span>W: )</span>
+                <span>U: 💱</span>
+            </footer>
+        </div>
+
+        <!-- Currency Modal -->
+        <div id="currency-modal"
+            class="hidden absolute inset-0 z-50 rounded-3xl bg-slate-900/90 backdrop-blur-2xl border border-white/10 p-6 flex-col">
+            <header class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-semibold text-white">Currency Conversion</h2>
+                <button onclick="toggleCurrencyModal()"
+                    class="text-white/50 hover:text-white transition-colors">✕</button>
+            </header>
+
+            <div class="flex-1 flex flex-col gap-4">
+                <div class="bg-black/20 p-4 rounded-xl border border-white/5">
+                    <label class="text-xs text-white/40 uppercase tracking-wider mb-2 block">Amount</label>
+                    <div id="conv-amount" class="text-2xl font-light mono text-white">0</div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex-1">
+                        <label class="text-[10px] text-white/40 uppercase tracking-wider mb-1 block">From</label>
+                        <select id="conv-from"
+                            class="w-full bg-white/10 border border-white/10 rounded-lg p-2 text-white outline-none focus:border-blue-500/50 appearance-none cursor-pointer text-sm">
+                            <option value="INR">🇮🇳 INR - Rupee</option>
+                            <option value="USD">🇺🇸 USD - Dollar</option>
+                            <option value="EUR">🇪🇺 EUR - Euro</option>
+                            <option value="GBP">🇬🇧 GBP - Pound</option>
+                            <option value="AED">🇦🇪 AED - Dirham</option>
+                        </select>
+                    </div>
+                    <button onclick="swapCurrencies()"
+                        class="mt-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors">⇄</button>
+                    <div class="flex-1">
+                        <label class="text-[10px] text-white/40 uppercase tracking-wider mb-1 block">To</label>
+                        <select id="conv-to"
+                            class="w-full bg-white/10 border border-white/10 rounded-lg p-2 text-white outline-none focus:border-blue-500/50 appearance-none cursor-pointer text-sm">
+                            <option value="USD">🇺🇸 USD - Dollar</option>
+                            <option value="INR">🇮🇳 INR - Rupee</option>
+                            <option value="EUR">🇪🇺 EUR - Euro</option>
+                            <option value="GBP">🇬🇧 GBP - Pound</option>
+                            <option value="AED">🇦🇪 AED - Dirham</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-auto">
+                    <div
+                        class="bg-blue-500/10 p-5 rounded-2xl border border-blue-500/20 text-center relative overflow-hidden group">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/10 to-blue-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000">
+                        </div>
+                        <label class="text-[10px] text-blue-400/60 uppercase tracking-widest mb-1 block">Converted
+                            Result</label>
+                        <div id="conv-result" class="text-3xl font-medium mono text-blue-100 break-all">---</div>
+                        <div id="conv-rate" class="text-[10px] text-blue-400/40 mt-2">Rate: ---</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script src="test.js"></script>
+</body>
+
+</html>
