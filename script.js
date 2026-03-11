@@ -447,12 +447,23 @@ async function fetchGlobalRates() {
         const data = await response.json();
         if (data.result === "success") {
             exchangeRates = data.rates;
+            localStorage.setItem('cachedRates', JSON.stringify(exchangeRates));
             console.log("Global exchange rates loaded successfully.");
         } else {
             console.error("Failed to parse exchange rates on load.");
+            useCachedRates();
         }
     } catch (error) {
-        console.error("Could not fetch global exchange rates on load:", error);
+        console.warn("Could not fetch global exchange rates on load. Using cache for offline mode.");
+        useCachedRates();
+    }
+}
+
+function useCachedRates() {
+    const cached = localStorage.getItem('cachedRates');
+    if (cached) {
+        exchangeRates = JSON.parse(cached);
+        console.log("Loaded cached exchange rates for offline use.");
     }
 }
 
@@ -547,3 +558,14 @@ function performConversion() {
 // Re-calculate when dropdowns change
 convFromSelect.addEventListener('change', performConversion);
 convToSelect.addEventListener('change', performConversion);
+
+// --- PWA Service Worker Registration ---
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }).catch(err => {
+            console.log('ServiceWorker registration failed: ', err);
+        });
+    });
+}
